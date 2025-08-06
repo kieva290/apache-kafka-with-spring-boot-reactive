@@ -1,0 +1,109 @@
+"https://kafka.apache.org/quickstart"
+-----
+apache kafka with spring boot reactive:
+this sample Spring Boot project demonstrates the integration of Kafka with Spring Reactive application,
+the project showcases key concepts related to Kafka, including topics, partitions, serialization, consumer groups, and offset management,
+Apache Kafka is an open-source distributed event streaming platform used by thousands of companies for high-performance data pipelines, streaming analytics,
+data integration, and mission-critical applications,
+-------------
+Start the KAFKA Environment
+navigate to the location of the unzipped file "$cd java\apache_kafka\kafka_server", 
+1. Generate a Cluster UUID:
+$ KAFKA_CLUSTER_ID="$(bin/kafka-storage.sh random-uuid)"
+2. Format Log directories
+$ bin/kafka-storage.sh format --standalone -t $KAFKA_CLUSTER_ID -c config/server.properties"
+3. Start the Kafka Server
+$ bin/kafka-server-start.sh config/server.properties
+-------------
+Step 3: create a Topic to store your events,
+Kafka is a distributed event streaming platform that lets you read, write, store, and process events(also called records or messages in the documentation),
+across many machine,
+example events are payment transactions, geolocation updates from mobile phones, shipping orders, sensor measurements from IoT devices or
+medical equipment, etc,
+these events are organized and stored in "topics", very simplified, a topic is similar to a folder in a filesystem, and the events are files in that folder,
+so before you can write first events, you must create a topic,
+Open another terminal session and run:
+$ bin/kafka-topics.sh --create --topic quickstart-events --bootstrap-server localhost:9092
+--------
+Step 4: write some events into the Topic
+a Kafka client communicates with the Kafka broker via the network for writing (or reading) events,
+once received, the brokers will store the events in a durable and fault-tolerant manner for as long as you need, even forever,
+$ bin/kafka-console-producer.sh --topic quickstart-events --bootstrap-server localhost:9092
+>This is my first event
+>This is my second event
+You can stop the producer client with "Ctrl-C" at any time,
+-------
+Step 5: read the events
+open another terminal session and run the console client to read the events your just created
+$ bin/kafka-console-consumer.sh --topic quickstart-events --from-beginning --bootstrap-server localhost:9092
+This is my first event
+This is my second event
+feel free to experiment: e.g. switch back to the producer terminal (step 4) to write additional events, and see how the events immediately show up in your consumer terminal,
+becoz events are durably stored in Kafka, they can be read as many times and by as many consumers as you want,
+------
+Step 6: import/export your data as streams of events with Kafka connect,
+you probably have lots of data in existing systems like relational databases, or traditional messaging systems,
+Kafka Connect allows you to continously ingest data from external systems in Kafka, and vice versa,
+it's an extensible tool that runs connectors, which implement the custom logic for interacting with external system,
+we'll see how to run kafka Connect with simple connectors that import data from a file to a Kafka topic and export data from a Kafka topic to a file,
+first make sure to add "connect-file-4.0.0.jar" to the "plugin,.path" property in the Connect worker's configuration,
+edit the "config/connect-standalone.properties" and change the "plugin.path" configuration property, with below command:
+"$ echo "plugin.path=libs/connect-file-4.0.0.jar" >> config/connect-standalone.properties"
+then, start by creating some seed data to test with:
+$ echo -e "foo\nbar" > test.txt
+we'll start two connectors running in standalone mode, which means they run in a single, local, dedicated process,
+--
+$ bin/connect-standalone.sh config/connect-standalone.properties config/connect-file-source.properties config/connect-file-sink.properties
+---
+these sample configuration files, included with Kafka use the default local cluster configuration you started earlier and create two connectors,
+the first is a source connector that reads lines from the input file, and produces each to a Kafka topic,
+and the second is a sink connector that reads messages from a Kafka topic and produces each as a line in an output file,
+during startup you'll see a number of log messages, including some indicating that the connectors are being instantiated,
+once the Kafka Connect process has started, the source connector should start reading lines from "text.txt" file, and producing them to the topic "connect-test",
+and the sink connector should start reading messages from the topic "connect-test" and writing them to the file "test.sink.txt",
+-----------
+Step 7: Process your events with kafka streams,
+once your data is stored in a Kafka as events, you can process the data with the Kafka Streams client library for Java/Scala,
+it allows you to implemement mission-critical real-time applications and microservices, where the input and/or output data is stored in Kafka topics,
+Kafka Streams combines the simplicity of writing and deploying standard Java and Scala applications on the client side with the benefits of kafka's
+server-side cluster technology to make these application highy scalable, elastic, fault-tolerant, and distributed,
+----------
+Message Broker, examples "Apache Kafka, Amazon SQS, RabbitMQ", intermediary system for data exchange btw systems,
+-------------
+Kafka Cluster:
+within the context of Kafka, a cluster is a group of brokers/servers working together for three reasons:
+speed (low latency), durability, and scalability,
+several data streams can be processed by separate servers, which decreases the latency of data delivery,
+data is replicated across multiple servers, so if one fails, another server has the data backed up, ensuring stability,
+meaning data durability and availability,
+Kafka also balances the load across multiple servers to provide scalability,
+Kafka Brokers:
+brokers are servers with special jobs to do: managing the load balancing, replication, and stream decoupling within the Kafka cluster,
+how do they get these jobs done?
+first of all in order to start a Kafka cluster, the developer authenticates to a bootstrap server,
+these are the first servers in the cluster,
+then, the brokers also balance the load and handle replication, and those two features of Kafka speed, scalability, and stability,
+An Apache Kafka Producer is a client application that publishes (writes) events to a Kafka cluster,
+An Apache kafka Consumer is a client application that subscribes to (reads and processes) events,
+A Kafka Topic is a logical channel or feed category to which records (messages) are published by producers and from which records are consumed by consumers,
+Topics serve as a way to organize and categorize the stream of messages within the Kafka messaging system,
+in Apache Kafka, a partition is a basic unit of parallelism and scalability,
+it is a way of horizontally dividing a topic into multiple independently managed units,
+each partition is a strictly, immutable sequence of records, and it plays a crucial role in the distribution, parallel processing,
+and fault tolerance of data within a kafka cluster,
+a topic can be divided into multiple partitions,
+each partition is a linear ordered sequence of records,
+partitions are key to leveraging scalability and performance of kafka,
+partitions enable parallel processing,
+when we talk about partitions, we also talk about offset,
+Offset is a sequence of ids given to messages as they arrive at a partition,
+once the offset is assigned, it will never be changed, the first message gets an offset zero (0),
+the next next message receives an offset of one (1), and so on...
+offset represents the location or position of a message in a partition,
+a consumer group contains one or more consumers working together to process messages,
+-----------
+https://stream.wikimedia.org/v2/stream/recentchange
+consume messages from topic:
+"$bin/kafka-console-consumer.sh --topic wikimedia-stream --from-beginning --bootstrap-server localhost:9092",
+sample message on console when stop reading messages from topic,
+"Processed a total of 25688 messages",
