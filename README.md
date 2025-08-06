@@ -33,15 +33,16 @@ This is a sample Spring Boot project that demonstrates the integration of Kafka 
 
 Ensure that Kafka is installed and running locally. You can download Kafka from the [official Apache Kafka website](https://kafka.apache.org/).
 
-Start a ZooKeeper server (required by Kafka):
-
+Start a Kafka cluster:
+on my machine l run below commands from within this directory, where kafka_server sits:
+"/java/apache-kafka/kafka_server"
 ```bash
-bin/zookeeper-server-start.sh config/zookeeper.properties
-```
-
-Start a Kafka broker:
-```bash
-bin/kafka-server-start.sh config/server.properties
+1. Generate a Cluster UUID:
+   $ KAFKA_CLUSTER_ID="$(bin/kafka-storage.sh random-uuid)"
+2. Format Log directories
+   $ bin/kafka-storage.sh format --standalone -t $KAFKA_CLUSTER_ID -c config/server.properties"
+3. Start the Kafka Server
+   $ bin/kafka-server-start.sh config/server.properties
 ```
 
 
@@ -50,7 +51,7 @@ bin/kafka-server-start.sh config/server.properties
 Clone this repository and navigate to the project folder:
 
 ```bash
-git clone https://github.com/ali-bouali/apache-kafka-with-spring-boot-reactive
+git clone https://github.com/kieva290/apache-kafka-with-spring-boot-reactive
 cd apache-kafka-with-spring-boot-reactive
 ```
 

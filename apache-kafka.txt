@@ -107,3 +107,6 @@ consume messages from topic:
 "$bin/kafka-console-consumer.sh --topic wikimedia-stream --from-beginning --bootstrap-server localhost:9092",
 sample message on console when stop reading messages from topic,
 "Processed a total of 25688 messages",
+---------
+git project: "apache-kafka-with-spring-boot-reactive"
+"https://github.com/ali-bouali/apache-kafka-with-spring-boot-reactive",
